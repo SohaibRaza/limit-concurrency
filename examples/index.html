@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Limit Promise Concurrency</title>
+    <style>
+      .button-container {
+        display: flex;
+        justify-content: center;
+        padding: 40px 0;
+      }
+      .button {
+        padding: 0.6em 2em;
+        border: none;
+        outline: none;
+        color: rgb(255, 255, 255);
+        background: #111;
+        cursor: pointer;
+        position: relative;
+        z-index: 0;
+        border-radius: 10px;
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: manipulation;
+      }
+
+      .button:before {
+        content: "";
+        background: linear-gradient(
+          45deg,
+          #ff0000,
+          #ff7300,
+          #fffb00,
+          #48ff00,
+          #00ffd5,
+          #002bff,
+          #7a00ff,
+          #ff00c8,
+          #ff0000
+        );
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        background-size: 400%;
+        z-index: -1;
+        filter: blur(5px);
+        -webkit-filter: blur(5px);
+        width: calc(100% + 4px);
+        height: calc(100% + 4px);
+        animation: glowing-button 20s linear infinite;
+        transition: opacity 0.3s ease-in-out;
+        border-radius: 10px;
+      }
+
+      @keyframes glowing-button {
+        0% {
+          background-position: 0 0;
+        }
+        50% {
+          background-position: 400% 0;
+        }
+        100% {
+          background-position: 0 0;
+        }
+      }
+
+      .button:after {
+        z-index: -1;
+        content: "";
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: #222;
+        left: 0;
+        top: 0;
+        border-radius: 10px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="button-container">
+      <div>
+        <div style="margin-bottom: 24px">
+          <h3>Urls:</h3>
+          <p>Enter urls each on next line.</p>
+          <textarea name="urls" id="urls" cols="30" rows="10">
+            https://jsonplaceholder.ir/users/1
+            https://jsonplaceholder.ir/users/2
+            https://jsonplaceholder.ir/users/3
+            https://jsonplaceholder.ir/users/4
+            https://jsonplaceholder.ir/users/5
+            https://jsonplaceholder.ir/users/6
+            https://jsonplaceholder.ir/users/7
+            https://jsonplaceholder.ir/users/8
+            https://jsonplaceholder.ir/users/9
+            https://jsonplaceholder.ir/users/10
+          </textarea>
+        </div>
+        <div style="margin: 32px 0">
+          <input type="number" name="limit" id="limit" />
+        </div>
+        <button id="button" class="button" role="button" onclick="getData();">
+          Fetch
+        </button>
+      </div>
+    </div>
+    <div>
+      <h1 id="heading"></h1>
+      <p id="fetch-result"></p>
+    </div>
+    <script type="module">
+      import limitConcurrency from "../build/index.esm.js";
+
+      function reset() {
+        document.getElementById("fetch-result").innerHTML = "";
+      }
+
+      async function getData() {
+        reset();
+        const heading = document.getElementById("heading");
+        heading.innerHTML = "Fetching...";
+
+        const urlsList = document.getElementById("urls");
+
+        const urls = urlsList.value.split("\n").filter((url) => {
+          if (Boolean(url)) return url.trim();
+        });
+        const limit = parseInt(document.getElementById("limit"));
+
+        const text = await limitConcurrency({
+          collection: urls,
+          asyncTask: async (url) => {
+            const response = await fetch(url);
+            const text = await response.text();
+            return text;
+          },
+          limit: limit,
+        });
+
+        var ol = document.createElement("ol");
+
+        for (let i = 0; i < text.length; i++) {
+          let li = document.createElement("li");
+          li.innerHTML = JSON.stringify(text[i]);
+          ol.appendChild(li);
+        }
+
+        const elem = document.getElementById("fetch-result");
+        elem.appendChild(ol);
+
+        heading.innerHTML = "Completed";
+
+        console.log(text, " <<< TEXT RESULTS");
+      }
+
+      document.getElementById("button").onclick = getData;
+    </script>
+  </body>
+</html>

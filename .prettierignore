@@ -1,0 +1,22 @@
+# System junk
+.DS_Store
+
+# Dotfiles
+.gitignore
+.env*
+.eslintignore
+.prettierignore
+.npmrc
+.nvmrc
+globalConfig.json
+
+# Build artifacts
+node_modules
+package-lock.json
+yarn.lock
+coverage
+build
+tmp
+dist
+*.log
+.cache
