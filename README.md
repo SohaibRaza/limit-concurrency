@@ -62,4 +62,4 @@ async function getTODOs() {
   - ✓ does not mutate the collection.
   
   
- #promises #concurrency #async #javascript
+#promises #concurrency #async #javascript #queue-promise #es6-promise #promise-pool #limit-promise
