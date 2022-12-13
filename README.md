@@ -60,3 +60,6 @@ async function getTODOs() {
   - ✓ throws at the first error.
   - ✓ throws if the last item throws.
   - ✓ does not mutate the collection.
+  
+  
+ #promises #concurrency #async #javascript
